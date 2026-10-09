@@ -1,0 +1,8 @@
+dist
+node_modules
+pnpm-lock.yaml
+coverage
+.git
+*.sqlite
+data
+packages/web/dist
