@@ -1,0 +1,90 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: nova
+      POSTGRES_PASSWORD: nova
+      POSTGRES_DB: nova
+    volumes:
+      - nova-pg:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nova -d nova"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  sandbox:
+    image: nova-sandbox:local
+    build:
+      context: ./docker/sandbox
+    command: ["true"]
+    restart: "no"
+    network_mode: none
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/server/Dockerfile
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATABASE_URL: postgres://nova:nova@postgres:5432/nova
+      REDIS_URL: redis://redis:6379
+      NOVA_MASTER_KEY: ${NOVA_MASTER_KEY:-change-me-please-use-a-long-random-string}
+      NOVA_SESSION_SECRET: ${NOVA_SESSION_SECRET:-change-me-session-secret-16+}
+      DATA_DIR: /var/nova/data
+      WORKSPACE_DIR: /var/nova/workspaces
+      HARNESS_DIR: /var/nova/harness
+      SANDBOX_MODE: ${SANDBOX_MODE:-docker}
+      SANDBOX_IMAGE: nova-sandbox:local
+      SANDBOX_HOST_WORKSPACE_DIR: ${COMPOSE_PROJECT_DIR}/data/workspaces
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      WEB_SEARCH_PROVIDER: ${WEB_SEARCH_PROVIDER:-none}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      BRAVE_SEARCH_API_KEY: ${BRAVE_SEARCH_API_KEY:-}
+      SEARXNG_BASE_URL: ${SEARXNG_BASE_URL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      DEFAULT_MODEL_PROVIDER: ${DEFAULT_MODEL_PROVIDER:-openai}
+      DEFAULT_MODEL_ID: ${DEFAULT_MODEL_ID:-gpt-4o-mini}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    volumes:
+      - ./data/data:/var/nova/data
+      - ./data/workspaces:/var/nova/workspaces
+      - ./data/harness:/var/nova/harness
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      sandbox:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
+
+volumes:
+  nova-pg:

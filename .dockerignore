@@ -1,0 +1,10 @@
+node_modules
+**/node_modules
+**/dist
+.git
+data
+*.sqlite
+.env
+coverage
+.vite
+packages/web/dist
