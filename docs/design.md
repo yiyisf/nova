@@ -97,7 +97,7 @@ Cron 例程、事件/Webhook 触发、后台 sub-agent（steer/stop）、Bot 之
 
 ### Phase 4 — 完整 Web 与浏览器
 
-完整 UI 设计、Playwright 浏览器、可查看的沙箱桌面。
+完整 UI 设计（气质与 token 见第 10 节）、Playwright 浏览器、可查看的沙箱桌面。
 
 ### Phase 5 — 对外通道与运维
 
@@ -124,3 +124,40 @@ Slack / Telegram / 飞书、用量与配额、管理后台、Kubernetes 部署�
 7. **流式 UI** 的一等 API 是 `viewState()` / `watch()`；`watchEvents()` 仍标 experimental，但更接近对话 UI。
 8. **`Harness.open` 的 `env`** 签名为 `(target: { conversationId, cwd, read }, context) => ExecutionEnv`。
 9. **ConversationId** 在运行时当字符串使用并写入 `conversations.pi_conversation_id`。
+
+## 10. UI 气质与 Non-goals
+
+### 10.1 已确认方向（2026-10-23）
+
+- **主气质**：纸质工作台（安静书桌：像笔记与邮件，不像聊天机器人）。
+- **主色**：赭橙 `#C45C26`（仅用于链接 / 主按钮 / 焦点）。
+- **正文**：近墨 `#1C1917`。
+- **背景**：暖纸 `#F7F4EF`；浅灰底 `#EEEAE3`；卡片 `#FFFEFB` + 1px `#E7E2D9`。
+- **语义色**：成功 `#2F6F4E`；警告 `#A65D2E`；危险 `#9B2C2C`（失败才醒目）。
+- **字体**：中文标题 Source Han Serif SC / Noto Serif SC；正文系统 UI（PingFang / Noto Sans SC），行高约 1.7；代码 JetBrains Mono / ui-monospace。
+- **尺度**：卡片圆角 6px；按钮 4px；无毛玻璃；阴影仅 `0 1px 2px rgba(28,25,23,0.06)`。
+- **对话**：默认文档流、无聊天气泡；用户句字重 500，助手句 400 + 左侧 2px 浅分隔。
+- **Bot**：名牌（名字 + 一行职责）；无发光环、无立绘主视觉。
+- **审批 / 外发草稿**：一等公民整卡；外发不可逆前必须经草稿确认页。
+
+可选模式（非第三套品牌）：
+- **工具台**：暗色 / 高密度专注模式，同一信息架构换材质。
+- **书房**：记忆 / 长文 / 例程回看的阅读版式。
+
+### 10.2 UI Non-goals
+
+- 不做 ChatGPT / Open WebUI / LibreChat / Lobe 式「气泡军备」与宇宙渐变英雄区。
+- 不做紫靛渐变、发光球、星尘、霓虹描边、赛博网格、呼吸动画堆砌。
+- 不做侧栏模型厂商标墙与彩虹 provider 徽章。
+- 不做吉祥物 / 二次元立绘当主视觉。
+- 不做 Dify 式工作流画布（产品 Non-goal，与 UI 一致）。
+- 不做以 IM 通道覆盖率为优先的视觉与导航（通道在 Phase 5，不驱动主 UI）。
+- 不自研第二套 agent loop 的「控制台皮肤」去模仿 IDE。
+
+### 10.3 关键画面（线框意图）
+
+1. **Bot 列表**：顶栏 + 左侧名牌列表 + 右侧选中 Bot 摘要；主按钮「打开对话」。
+2. **对话**：窄侧栏切 Bot；主栏文档流；工具/审批整卡嵌在流中；输入区克制。
+3. **外发草稿**：抬头（通道/收件人/待确认）+ 正文预览为主 + 发送（赭橙）/ 修改 / 丢弃。
+
+Phase 4 实现 Web 时以上述三画面与 token 为准。
